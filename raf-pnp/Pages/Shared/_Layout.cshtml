@@ -1,0 +1,86 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Pather & Pather Attorneys - RAF Case Management</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/raf_pnp.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container">
+                <a class="navbar-brand d-flex align-items-center" asp-area="" asp-page="/Index">
+                    <i class="bi bi-briefcase-fill me-2"></i>
+                    <span class="logo-text">Pather & Pather</span>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-lg-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1 ms-3">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-page="/Index">
+                                <i class="bi bi-house-fill me-1"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-page="/Cases/Index">
+                                <i class="bi bi-folder-fill me-1"></i> Cases
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-page="/Clients/Index">
+                                <i class="bi bi-people-fill me-1"></i> Clients
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-page="/Tasks/Board">
+                                <i class="bi bi-check2-square me-1"></i> Tasks
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-page="/Teams/Index">
+                                <i class="bi bi-diagram-3 me-1"></i> Teams
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-page="/Reports/Index">
+                                <i class="bi bi-graph-up me-1"></i> Reports
+                            </a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-page="/Cases/Create">
+                                <i class="bi bi-plus-circle-fill me-1"></i> New Case
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container mt-4">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="footer mt-auto">
+        <div class="container text-center">
+            <span>&copy; @DateTime.Now.Year - Pather & Pather Attorneys - RAF Case Management System</span>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

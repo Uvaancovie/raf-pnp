@@ -1,0 +1,102 @@
+@page
+@model raf_pnp.Pages.Clients.IndexModel
+@{
+    ViewData["Title"] = "Clients";
+}
+
+<div class="page-header">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <h1><i class="bi bi-people-fill me-2"></i>Clients</h1>
+            <p class="mb-0 opacity-75">Manage client information</p>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+            <a asp-page="Create" class="btn btn-light btn-lg">
+                <i class="bi bi-person-plus me-1"></i> New Client
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Search -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-8">
+                    <label class="form-label">Search Clients</label>
+                    <input type="text" name="searchTerm" value="@Model.SearchTerm" class="form-control" placeholder="Name, ID number, email, phone..." />
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search me-1"></i> Search
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Clients Table -->
+<div class="card">
+    <div class="card-body p-0">
+        @if (Model.Clients != null && Model.Clients.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>ID Number</th>
+                            <th>Phone</th>
+                            <th>Email</th>
+                            <th>Cases</th>
+                            <th>Date Added</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var client in Model.Clients)
+                        {
+                            <tr>
+                                <td>
+                                    <strong>
+                                        <a asp-page="Details" asp-route-id="@client.Id">@client.FullName</a>
+                                    </strong>
+                                </td>
+                                <td>@client.IdNumber</td>
+                                <td>@(client.PhoneNumber ?? "-")</td>
+                                <td>@(client.Email ?? "-")</td>
+                                <td>
+                                    <span class="badge bg-info">@client.Cases.Count</span>
+                                </td>
+                                <td>@client.DateCreated.ToString("dd MMM yyyy")</td>
+                                <td class="text-center">
+                                    <div class="btn-group btn-group-sm">
+                                        <a asp-page="Details" asp-route-id="@client.Id" class="btn btn-outline-primary" title="View">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a asp-page="Edit" asp-route-id="@client.Id" class="btn btn-outline-secondary" title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="bi bi-person-x display-1 text-muted"></i>
+                <h4 class="mt-3 text-muted">No clients found</h4>
+                <p class="text-muted">Start by adding a new client</p>
+                <a asp-page="Create" class="btn btn-primary">
+                    <i class="bi bi-person-plus me-1"></i> Add New Client
+                </a>
+            </div>
+        }
+    </div>
+</div>

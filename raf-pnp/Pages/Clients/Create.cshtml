@@ -1,0 +1,103 @@
+@page
+@model raf_pnp.Pages.Clients.CreateModel
+@{
+    ViewData["Title"] = "New Client";
+}
+
+<div class="page-header">
+    <h1><i class="bi bi-person-plus me-2"></i>Add New Client</h1>
+    <p class="mb-0 opacity-75">Register a new client in the system</p>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-person me-2"></i>Client Information
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                    <!-- Personal Details -->
+                    <div class="mb-4">
+                        <h5 class="border-bottom pb-2"><i class="bi bi-person-badge me-2"></i>Personal Details</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Client.FirstName" class="form-label">First Name *</label>
+                                <input asp-for="Client.FirstName" class="form-control" />
+                                <span asp-validation-for="Client.FirstName" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Client.LastName" class="form-label">Last Name *</label>
+                                <input asp-for="Client.LastName" class="form-control" />
+                                <span asp-validation-for="Client.LastName" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Client.IdNumber" class="form-label">ID Number *</label>
+                                <input asp-for="Client.IdNumber" class="form-control" maxlength="13" placeholder="13-digit SA ID number" />
+                                <span asp-validation-for="Client.IdNumber" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Information -->
+                    <div class="mb-4">
+                        <h5 class="border-bottom pb-2"><i class="bi bi-telephone me-2"></i>Contact Information</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Client.PhoneNumber" class="form-label">Phone Number</label>
+                                <input asp-for="Client.PhoneNumber" class="form-control" placeholder="e.g., 082 123 4567" />
+                                <span asp-validation-for="Client.PhoneNumber" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Client.Email" class="form-label">Email Address</label>
+                                <input asp-for="Client.Email" type="email" class="form-control" placeholder="email@example.com" />
+                                <span asp-validation-for="Client.Email" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Client.Address" class="form-label">Physical Address</label>
+                            <textarea asp-for="Client.Address" class="form-control" rows="3" placeholder="Full residential address"></textarea>
+                            <span asp-validation-for="Client.Address" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-check-circle me-1"></i> Save Client
+                        </button>
+                        <a asp-page="Index" class="btn btn-outline-secondary btn-lg">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-info-circle me-2"></i>Information
+            </div>
+            <div class="card-body">
+                <p><strong>Required Documents for RAF Claim:</strong></p>
+                <ul class="small">
+                    <li>Certified copy of ID document</li>
+                    <li>Proof of residence</li>
+                    <li>Proof of income (if employed)</li>
+                    <li>Bank account details</li>
+                </ul>
+                <div class="alert alert-info mb-0">
+                    <i class="bi bi-lightbulb me-2"></i>
+                    <small>After creating the client, you can immediately create a new case for them.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

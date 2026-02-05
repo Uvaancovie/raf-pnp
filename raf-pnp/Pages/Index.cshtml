@@ -1,0 +1,257 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="page-header">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <h1><i class="bi bi-speedometer2 me-2"></i>Dashboard</h1>
+            <p class="mb-0 opacity-75">Welcome to Pather & Pather Attorneys - RAF Case Management System</p>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+            <a asp-page="/Cases/Create" class="btn btn-light btn-lg">
+                <i class="bi bi-plus-circle me-1"></i> New Case
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="stat-number">@Model.TotalCases</div>
+                <div class="stat-label">Total Cases</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="stat-number">@Model.ActiveCases</div>
+                <div class="stat-label">Active Cases</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="stat-number">@Model.AwaitingMmi</div>
+                <div class="stat-label">Awaiting MMI</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="stat-number">@Model.TotalClients</div>
+                <div class="stat-label">Total Clients</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Quick Actions -->
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <i class="bi bi-lightning-fill me-2"></i>Quick Actions
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <a asp-page="/Cases/Create" class="quick-action">
+                            <i class="bi bi-folder-plus"></i>
+                            <span>New Case</span>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a asp-page="/Clients/Create" class="quick-action">
+                            <i class="bi bi-person-plus"></i>
+                            <span>New Client</span>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a asp-page="/Cases/Index" class="quick-action">
+                            <i class="bi bi-search"></i>
+                            <span>Find Case</span>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a asp-page="/Reports/Index" class="quick-action">
+                            <i class="bi bi-file-earmark-bar-graph"></i>
+                            <span>Reports</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cases Requiring Attention -->
+    <div class="col-md-8 mb-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-exclamation-triangle-fill me-2"></i>Cases Requiring Attention</span>
+                <a asp-page="/Cases/Index" class="btn btn-sm btn-light">View All</a>
+            </div>
+            <div class="card-body">
+                @if (Model.UrgentCases != null && Model.UrgentCases.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Case #</th>
+                                    <th>Client</th>
+                                    <th>Status</th>
+                                    <th>Days</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var c in Model.UrgentCases)
+                                {
+                                    <tr>
+                                        <td><strong>@c.CaseNumber</strong></td>
+                                        <td>@c.Client?.FullName</td>
+                                        <td>
+                                            <span class="badge badge-status @GetStatusBadgeClass(c.Status)">
+                                                @GetStatusDisplayName(c.Status)
+                                            </span>
+                                        </td>
+                                        <td>@c.DaysSinceAccident days</td>
+                                        <td>
+                                            <a asp-page="/Cases/Details" asp-route-id="@c.Id" class="btn btn-sm btn-outline-primary">
+                                                View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-check-circle display-4"></i>
+                        <p class="mt-2">No urgent cases at this time.</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- RAF Process Overview -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-diagram-3-fill me-2"></i>RAF Process Overview
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md">
+                        <div class="p-2">
+                            <i class="bi bi-person-check display-6 text-primary"></i>
+                            <h6 class="mt-2">1. Client Intake</h6>
+                            <small class="text-muted">Mandate & Documents</small>
+                        </div>
+                    </div>
+                    <div class="col-md">
+                        <div class="p-2">
+                            <i class="bi bi-envelope-paper display-6 text-secondary"></i>
+                            <h6 class="mt-2">2. Initial Lodge</h6>
+                            <small class="text-muted">Non-Compliance</small>
+                        </div>
+                    </div>
+                    <div class="col-md">
+                        <div class="p-2">
+                            <i class="bi bi-clock-history display-6 text-warning"></i>
+                            <h6 class="mt-2">3. MMI Wait</h6>
+                            <small class="text-muted">±12 Months</small>
+                        </div>
+                    </div>
+                    <div class="col-md">
+                        <div class="p-2">
+                            <i class="bi bi-hospital display-6 text-info"></i>
+                            <h6 class="mt-2">4. Experts</h6>
+                            <small class="text-muted">Medical Reports</small>
+                        </div>
+                    </div>
+                    <div class="col-md">
+                        <div class="p-2">
+                            <i class="bi bi-file-earmark-check display-6 text-success"></i>
+                            <h6 class="mt-2">5. Compliance</h6>
+                            <small class="text-muted">Full Lodge</small>
+                        </div>
+                    </div>
+                    <div class="col-md">
+                        <div class="p-2">
+                            <i class="bi bi-hourglass-split display-6 text-danger"></i>
+                            <h6 class="mt-2">6. 120 Days</h6>
+                            <small class="text-muted">Waiting Period</small>
+                        </div>
+                    </div>
+                    <div class="col-md">
+                        <div class="p-2">
+                            <i class="bi bi-bank display-6 text-dark"></i>
+                            <h6 class="mt-2">7. Litigation</h6>
+                            <small class="text-muted">Summons & Trial</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetStatusBadgeClass(raf_pnp.Models.CaseStatus status)
+    {
+        return status switch
+        {
+            raf_pnp.Models.CaseStatus.ClientIntake => "badge-intake",
+            raf_pnp.Models.CaseStatus.InitialLodgement => "badge-lodgement",
+            raf_pnp.Models.CaseStatus.MmiWaitingPeriod => "badge-mmi",
+            raf_pnp.Models.CaseStatus.ExpertAppointments => "badge-expert",
+            raf_pnp.Models.CaseStatus.ComplianceLodgement => "badge-compliance",
+            raf_pnp.Models.CaseStatus.StatutoryWaitingPeriod => "badge-waiting",
+            raf_pnp.Models.CaseStatus.SummonsIssued => "badge-summons",
+            raf_pnp.Models.CaseStatus.PajaApplication => "badge-paja",
+            raf_pnp.Models.CaseStatus.PleadingPhase => "badge-pleading",
+            raf_pnp.Models.CaseStatus.PreTrialPhase => "badge-pretrial",
+            raf_pnp.Models.CaseStatus.TrialPhase => "badge-trial",
+            raf_pnp.Models.CaseStatus.Finalised => "badge-finalised",
+            raf_pnp.Models.CaseStatus.Closed => "badge-closed",
+            _ => "bg-secondary"
+        };
+    }
+
+    string GetStatusDisplayName(raf_pnp.Models.CaseStatus status)
+    {
+        return status switch
+        {
+            raf_pnp.Models.CaseStatus.ClientIntake => "Client Intake",
+            raf_pnp.Models.CaseStatus.InitialLodgement => "Initial Lodgement",
+            raf_pnp.Models.CaseStatus.MmiWaitingPeriod => "MMI Waiting",
+            raf_pnp.Models.CaseStatus.ExpertAppointments => "Expert Appointments",
+            raf_pnp.Models.CaseStatus.ComplianceLodgement => "Compliance Lodgement",
+            raf_pnp.Models.CaseStatus.StatutoryWaitingPeriod => "120-Day Wait",
+            raf_pnp.Models.CaseStatus.SummonsIssued => "Summons Issued",
+            raf_pnp.Models.CaseStatus.PajaApplication => "PAJA Application",
+            raf_pnp.Models.CaseStatus.PleadingPhase => "Pleading Phase",
+            raf_pnp.Models.CaseStatus.PreTrialPhase => "Pre-Trial",
+            raf_pnp.Models.CaseStatus.TrialPhase => "Trial",
+            raf_pnp.Models.CaseStatus.Finalised => "Finalised",
+            raf_pnp.Models.CaseStatus.Closed => "Closed",
+            _ => status.ToString()
+        };
+    }
+}

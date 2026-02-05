@@ -1,0 +1,375 @@
+@page
+@model raf_pnp.Pages.Tasks.BoardModel
+@{
+    ViewData["Title"] = "Task Board";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2><i class="bi bi-kanban"></i> Task Board</h2>
+            <p class="text-muted">Manage and track all tasks across your RAF cases</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createTaskModal">
+                <i class="bi bi-plus-circle"></i> New Task
+            </button>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Filter by Team</label>
+                    <select name="teamId" class="form-select" onchange="this.form.submit()">
+                        <option value="">All Teams</option>
+                        @foreach (var team in Model.Teams)
+                        {
+                            <option value="@team.Id">@team.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Filter by Assignee</label>
+                    <select name="assignedToUserId" class="form-select" onchange="this.form.submit()">
+                        <option value="">All Users</option>
+                        @foreach (var user in Model.Users)
+                        {
+                            <option value="@user.Id">@user.FullName</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Filter by Case</label>
+                    <input type="number" name="caseId" class="form-control" placeholder="Enter Case ID">
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Kanban Board -->
+    <div class="row g-3">
+        <!-- Not Started Column -->
+        <div class="col-md">
+            <div class="card task-column">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-circle"></i> Not Started
+                        <span class="badge bg-white text-dark float-end">@Model.NotStartedTasks.Count</span>
+                    </h5>
+                </div>
+                <div class="card-body task-list" data-status="NotStarted">
+                    @foreach (var task in Model.NotStartedTasks)
+                    {
+                        <partial name="_TaskCard" model="task" />
+                    }
+                    @if (!Model.NotStartedTasks.Any())
+                    {
+                        <p class="text-muted text-center">No tasks</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- In Progress Column -->
+        <div class="col-md">
+            <div class="card task-column">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-play-circle"></i> In Progress
+                        <span class="badge bg-white text-dark float-end">@Model.InProgressTasks.Count</span>
+                    </h5>
+                </div>
+                <div class="card-body task-list" data-status="InProgress">
+                    @foreach (var task in Model.InProgressTasks)
+                    {
+                        <partial name="_TaskCard" model="task" />
+                    }
+                    @if (!Model.InProgressTasks.Any())
+                    {
+                        <p class="text-muted text-center">No tasks</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Blocked Column -->
+        <div class="col-md">
+            <div class="card task-column">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="bi bi-exclamation-triangle"></i> Blocked
+                        <span class="badge bg-dark text-white float-end">@Model.BlockedTasks.Count</span>
+                    </h5>
+                </div>
+                <div class="card-body task-list" data-status="Blocked">
+                    @foreach (var task in Model.BlockedTasks)
+                    {
+                        <partial name="_TaskCard" model="task" />
+                    }
+                    @if (!Model.BlockedTasks.Any())
+                    {
+                        <p class="text-muted text-center">No tasks</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Under Review Column -->
+        <div class="col-md">
+            <div class="card task-column">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-eye"></i> Under Review
+                        <span class="badge bg-white text-dark float-end">@Model.UnderReviewTasks.Count</span>
+                    </h5>
+                </div>
+                <div class="card-body task-list" data-status="UnderReview">
+                    @foreach (var task in Model.UnderReviewTasks)
+                    {
+                        <partial name="_TaskCard" model="task" />
+                    }
+                    @if (!Model.UnderReviewTasks.Any())
+                    {
+                        <p class="text-muted text-center">No tasks</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Completed Column -->
+        <div class="col-md">
+            <div class="card task-column">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-check-circle"></i> Completed
+                        <span class="badge bg-white text-dark float-end">@Model.CompletedTasks.Count</span>
+                    </h5>
+                </div>
+                <div class="card-body task-list" data-status="Completed">
+                    @foreach (var task in Model.CompletedTasks)
+                    {
+                        <partial name="_TaskCard" model="task" />
+                    }
+                    @if (!Model.CompletedTasks.Any())
+                    {
+                        <p class="text-muted text-center">No tasks</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Task Modal -->
+<div class="modal fade" id="createTaskModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create New Task</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createTaskForm">
+                    <div class="mb-3">
+                        <label class="form-label">Title *</label>
+                        <input type="text" class="form-control" id="taskTitle" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" id="taskDescription" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Priority</label>
+                        <select class="form-select" id="taskPriority">
+                            <option value="0">Low</option>
+                            <option value="1" selected>Medium</option>
+                            <option value="2">High</option>
+                            <option value="3">Urgent</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Due Date</label>
+                        <input type="date" class="form-control" id="taskDueDate">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Assign To</label>
+                        <select class="form-select" id="taskAssignee">
+                            <option value="">Unassigned</option>
+                            @foreach (var user in Model.Users)
+                            {
+                                <option value="@user.Id">@user.FullName</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Team</label>
+                        <select class="form-select" id="taskTeam">
+                            <option value="">No Team</option>
+                            @foreach (var team in Model.Teams)
+                            {
+                                <option value="@team.Id">@team.Name</option>
+                            }
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="createTask()">Create Task</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        async function createTask() {
+            const task = {
+                title: document.getElementById('taskTitle').value,
+                description: document.getElementById('taskDescription').value,
+                priority: parseInt(document.getElementById('taskPriority').value),
+                dueDate: document.getElementById('taskDueDate').value || null,
+                assignedToUserId: document.getElementById('taskAssignee').value || null,
+                teamId: document.getElementById('taskTeam').value || null,
+                createdByUserId: 1 // TODO: Get from current user context
+            };
+
+            try {
+                const response = await fetch('/api/tasks', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(task)
+                });
+
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    alert('Failed to create task');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred');
+            }
+        }
+
+        // Drag and drop functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const taskCards = document.querySelectorAll('.task-card');
+            const taskLists = document.querySelectorAll('.task-list');
+
+            taskCards.forEach(card => {
+                card.addEventListener('dragstart', handleDragStart);
+                card.addEventListener('dragend', handleDragEnd);
+            });
+
+            taskLists.forEach(list => {
+                list.addEventListener('dragover', handleDragOver);
+                list.addEventListener('drop', handleDrop);
+                list.addEventListener('dragleave', handleDragLeave);
+            });
+
+            let draggedElement = null;
+
+            function handleDragStart(e) {
+                draggedElement = this;
+                this.style.opacity = '0.4';
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/html', this.innerHTML);
+            }
+
+            function handleDragEnd(e) {
+                this.style.opacity = '1';
+            }
+
+            function handleDragOver(e) {
+                if (e.preventDefault) {
+                    e.preventDefault();
+                }
+                e.dataTransfer.dropEffect = 'move';
+                this.classList.add('drag-over');
+                return false;
+            }
+
+            function handleDragLeave(e) {
+                this.classList.remove('drag-over');
+            }
+
+            async function handleDrop(e) {
+                if (e.stopPropagation) {
+                    e.stopPropagation();
+                }
+
+                this.classList.remove('drag-over');
+
+                if (draggedElement != null) {
+                    const taskId = draggedElement.getAttribute('data-task-id');
+                    const newStatusStr = this.getAttribute('data-status');
+                    
+                    // Map string status to enum integer
+                    const statusMap = {
+                        'NotStarted': 0,
+                        'InProgress': 1,
+                        'Blocked': 2,
+                        'UnderReview': 3,
+                        'Completed': 4,
+                        'Cancelled': 5
+                    };
+                    
+                    const newStatus = statusMap[newStatusStr];
+
+                    // Update task status via API
+                    try {
+                        const response = await fetch(`/api/tasks/${taskId}/status`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ status: newStatus })
+                        });
+
+                        if (response.ok) {
+                            this.appendChild(draggedElement);
+                        } else {
+                            const data = await response.json();
+                            alert('Failed to update task status: ' + (data.message || response.statusText));
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('An error occurred');
+                    }
+                }
+
+                return false;
+            }
+        });
+    </script>
+}
+
+<style>
+    .task-column {
+        min-height: 500px;
+    }
+
+    .task-list {
+        min-height: 400px;
+        max-height: 600px;
+        overflow-y: auto;
+    }
+
+    .task-list.drag-over {
+        background-color: #f0f0f0;
+        border: 2px dashed #007bff;
+    }
+
+    .task-card {
+        cursor: move;
+        margin-bottom: 10px;
+        transition: all 0.3s;
+    }
+
+    .task-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+</style>

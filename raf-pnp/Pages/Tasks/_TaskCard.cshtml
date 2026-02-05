@@ -1,0 +1,88 @@
+@model raf_pnp.Models.RafTask
+
+<div class="card task-card" draggable="true" data-task-id="@Model.Id">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+            <h6 class="card-title mb-0">@Model.Title</h6>
+            @switch (Model.Priority)
+            {
+                case raf_pnp.Models.TaskPriority.Urgent:
+                    <span class="badge bg-danger">Urgent</span>
+                    break;
+                case raf_pnp.Models.TaskPriority.High:
+                    <span class="badge bg-warning text-dark">High</span>
+                    break;
+                case raf_pnp.Models.TaskPriority.Medium:
+                    <span class="badge bg-info">Medium</span>
+                    break;
+                case raf_pnp.Models.TaskPriority.Low:
+                    <span class="badge bg-secondary">Low</span>
+                    break;
+            }
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.Description))
+        {
+            <p class="card-text text-muted small">
+                @(Model.Description.Length > 80 ? Model.Description.Substring(0, 80) + "..." : Model.Description)
+            </p>
+        }
+
+        @if (Model.Case != null)
+        {
+            <div class="mb-2">
+                <small class="text-muted">
+                    <i class="bi bi-folder"></i> @Model.Case.CaseNumber
+                </small>
+            </div>
+        }
+
+        @if (Model.DueDate.HasValue)
+        {
+            <div class="mb-2">
+                <small class="@(Model.IsOverdue ? "text-danger" : "text-muted")">
+                    <i class="bi bi-calendar"></i> 
+                    @Model.DueDate.Value.ToString("MMM dd, yyyy")
+                    @if (Model.IsOverdue)
+                    {
+                        <span class="badge bg-danger ms-1">Overdue</span>
+                    }
+                </small>
+            </div>
+        }
+
+        @if (Model.AssignedToUser != null)
+        {
+            <div class="d-flex align-items-center">
+                <div class="avatar-circle me-2">
+                    @Model.AssignedToUser.FullName.Substring(0, 1)
+                </div>
+                <small class="text-muted">@Model.AssignedToUser.FullName</small>
+            </div>
+        }
+        else
+        {
+            <small class="text-muted"><i class="bi bi-person"></i> Unassigned</small>
+        }
+    </div>
+    <div class="card-footer bg-transparent">
+        <a href="/Tasks/Details?id=@Model.Id" class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-eye"></i> View
+        </a>
+    </div>
+</div>
+
+<style>
+    .avatar-circle {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-color: #007bff;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 14px;
+    }
+</style>

@@ -1,0 +1,158 @@
+@page
+@model raf_pnp.Pages.Cases.CreateModel
+@{
+    ViewData["Title"] = "New Case";
+}
+
+<div class="page-header">
+    <h1><i class="bi bi-folder-plus me-2"></i>Create New RAF Case</h1>
+    <p class="mb-0 opacity-75">Start the client intake process for a new Road Accident Fund claim</p>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-file-earmark-plus me-2"></i>Case Information
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                    <!-- Client Selection -->
+                    <div class="mb-4">
+                        <h5 class="border-bottom pb-2"><i class="bi bi-person me-2"></i>Client Details</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="RafCase.ClientId" class="form-label">Select Existing Client</label>
+                                <select asp-for="RafCase.ClientId" asp-items="Model.ClientList" class="form-select">
+                                    <option value="">-- Select a Client --</option>
+                                </select>
+                                <span asp-validation-for="RafCase.ClientId" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3 d-flex align-items-end">
+                                <a asp-page="/Clients/Create" class="btn btn-outline-primary">
+                                    <i class="bi bi-person-plus me-1"></i> Create New Client
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Case Details -->
+                    <div class="mb-4">
+                        <h5 class="border-bottom pb-2"><i class="bi bi-folder me-2"></i>Case Details</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="RafCase.CaseNumber" class="form-label">Case Number *</label>
+                                <input asp-for="RafCase.CaseNumber" class="form-control" placeholder="e.g., RAF-2026-001" />
+                                <span asp-validation-for="RafCase.CaseNumber" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="RafCase.AccidentDate" class="form-label">Accident Date *</label>
+                                <input asp-for="RafCase.AccidentDate" type="date" class="form-control" />
+                                <span asp-validation-for="RafCase.AccidentDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label asp-for="RafCase.AccidentLocation" class="form-label">Accident Location</label>
+                                <input asp-for="RafCase.AccidentLocation" class="form-control" placeholder="Location where the accident occurred" />
+                                <span asp-validation-for="RafCase.AccidentLocation" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="RafCase.AccidentDescription" class="form-label">Accident Description</label>
+                            <textarea asp-for="RafCase.AccidentDescription" class="form-control" rows="3" placeholder="Brief description of the accident"></textarea>
+                            <span asp-validation-for="RafCase.AccidentDescription" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- Assignment -->
+                    <div class="mb-4">
+                        <h5 class="border-bottom pb-2"><i class="bi bi-people me-2"></i>Assignment</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="RafCase.AssignedAttorney" class="form-label">Assigned Attorney</label>
+                                <input asp-for="RafCase.AssignedAttorney" class="form-control" />
+                                <span asp-validation-for="RafCase.AssignedAttorney" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="RafCase.CandidateAttorney" class="form-label">Candidate Attorney</label>
+                                <input asp-for="RafCase.CandidateAttorney" class="form-control" />
+                                <span asp-validation-for="RafCase.CandidateAttorney" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fee Agreement -->
+                    <div class="mb-4">
+                        <h5 class="border-bottom pb-2"><i class="bi bi-file-text me-2"></i>Fee Agreement</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check mb-3">
+                                    <input asp-for="RafCase.FeeAgreementSigned" class="form-check-input" />
+                                    <label asp-for="RafCase.FeeAgreementSigned" class="form-check-label">Fee Agreement Signed</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check mb-3">
+                                    <input asp-for="RafCase.ContingencyFeeAgreement" class="form-check-input" />
+                                    <label asp-for="RafCase.ContingencyFeeAgreement" class="form-check-label">Contingency Fee Agreement</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notes -->
+                    <div class="mb-4">
+                        <label asp-for="RafCase.Notes" class="form-label">Initial Notes</label>
+                        <textarea asp-for="RafCase.Notes" class="form-control" rows="3" placeholder="Any additional notes..."></textarea>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-check-circle me-1"></i> Create Case
+                        </button>
+                        <a asp-page="Index" class="btn btn-outline-secondary btn-lg">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-info-circle me-2"></i>RAF Process Notes
+            </div>
+            <div class="card-body">
+                <h6>Client Intake Checklist:</h6>
+                <ul class="list-unstyled">
+                    <li><i class="bi bi-check-square text-success me-2"></i>Conduct initial consultation</li>
+                    <li><i class="bi bi-check-square text-success me-2"></i>Obtain mandate (Fee Agreement)</li>
+                    <li><i class="bi bi-check-square text-success me-2"></i>Collect accident documents</li>
+                    <li><i class="bi bi-check-square text-success me-2"></i>Open physical and digital file</li>
+                </ul>
+
+                <hr />
+
+                <h6>Required Documents:</h6>
+                <ul class="list-unstyled small">
+                    <li><i class="bi bi-file-earmark me-2"></i>Accident Report (AR)</li>
+                    <li><i class="bi bi-file-earmark me-2"></i>Hospital Records</li>
+                    <li><i class="bi bi-file-earmark me-2"></i>Employment Records</li>
+                    <li><i class="bi bi-file-earmark me-2"></i>ID Document</li>
+                </ul>
+
+                <div class="alert alert-info mt-3 mb-0">
+                    <i class="bi bi-lightbulb me-2"></i>
+                    <small>MMI is typically achieved at 12 months from accident date.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

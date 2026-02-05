@@ -1,0 +1,81 @@
+@page "{id:int}"
+@model raf_pnp.Pages.Clients.EditModel
+@{
+    ViewData["Title"] = "Edit Client";
+}
+
+<div class="page-header">
+    <h1><i class="bi bi-person-gear me-2"></i>Edit Client: @Model.Client?.FullName</h1>
+    <p class="mb-0 opacity-75">Update client information</p>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                    <input type="hidden" asp-for="Client.Id" />
+                    <input type="hidden" asp-for="Client.DateCreated" />
+
+                    <!-- Personal Details -->
+                    <div class="mb-4">
+                        <h5 class="border-bottom pb-2"><i class="bi bi-person-badge me-2"></i>Personal Details</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Client.FirstName" class="form-label">First Name *</label>
+                                <input asp-for="Client.FirstName" class="form-control" />
+                                <span asp-validation-for="Client.FirstName" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Client.LastName" class="form-label">Last Name *</label>
+                                <input asp-for="Client.LastName" class="form-control" />
+                                <span asp-validation-for="Client.LastName" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Client.IdNumber" class="form-label">ID Number *</label>
+                                <input asp-for="Client.IdNumber" class="form-control" maxlength="13" />
+                                <span asp-validation-for="Client.IdNumber" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Information -->
+                    <div class="mb-4">
+                        <h5 class="border-bottom pb-2"><i class="bi bi-telephone me-2"></i>Contact Information</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Client.PhoneNumber" class="form-label">Phone Number</label>
+                                <input asp-for="Client.PhoneNumber" class="form-control" />
+                                <span asp-validation-for="Client.PhoneNumber" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Client.Email" class="form-label">Email Address</label>
+                                <input asp-for="Client.Email" type="email" class="form-control" />
+                                <span asp-validation-for="Client.Email" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Client.Address" class="form-label">Physical Address</label>
+                            <textarea asp-for="Client.Address" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Client.Address" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-check-circle me-1"></i> Save Changes
+                        </button>
+                        <a asp-page="Details" asp-route-id="@Model.Client?.Id" class="btn btn-outline-secondary btn-lg">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

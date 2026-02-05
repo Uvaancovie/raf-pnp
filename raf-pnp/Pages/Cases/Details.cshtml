@@ -1,0 +1,461 @@
+@page "{id:int}"
+@model raf_pnp.Pages.Cases.DetailsModel
+@{
+    ViewData["Title"] = $"Case {Model.RafCase?.CaseNumber}";
+}
+
+@if (Model.RafCase == null)
+{
+    <div class="alert alert-danger">Case not found.</div>
+    return;
+}
+
+<div class="page-header">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <h1><i class="bi bi-folder-fill me-2"></i>Case: @Model.RafCase.CaseNumber</h1>
+            <p class="mb-0 opacity-75">
+                Client: @Model.RafCase.Client?.FullName | 
+                Opened: @Model.RafCase.DateOpened.ToString("dd MMM yyyy")
+            </p>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+            <a asp-page="Edit" asp-route-id="@Model.RafCase.Id" class="btn btn-light">
+                <i class="bi bi-pencil me-1"></i> Edit Case
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Status and Progress -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">Current Status</h5>
+                    <span class="badge badge-status @GetStatusBadgeClass(Model.RafCase.Status) fs-6">
+                        @GetStatusDisplayName(Model.RafCase.Status)
+                    </span>
+                </div>
+                <div class="progress mb-3" style="height: 25px;">
+                    <div class="progress-bar" role="progressbar" style="width: @GetProgressPercentage(Model.RafCase.Status)%">
+                        @GetProgressPercentage(Model.RafCase.Status)% Complete
+                    </div>
+                </div>
+                <div class="row text-center small">
+                    <div class="col"><span class="@(Model.RafCase.Status >= raf_pnp.Models.CaseStatus.ClientIntake ? "text-success fw-bold" : "text-muted")">Intake</span></div>
+                    <div class="col"><span class="@(Model.RafCase.Status >= raf_pnp.Models.CaseStatus.InitialLodgement ? "text-success fw-bold" : "text-muted")">Lodge</span></div>
+                    <div class="col"><span class="@(Model.RafCase.Status >= raf_pnp.Models.CaseStatus.MmiWaitingPeriod ? "text-success fw-bold" : "text-muted")">MMI</span></div>
+                    <div class="col"><span class="@(Model.RafCase.Status >= raf_pnp.Models.CaseStatus.ExpertAppointments ? "text-success fw-bold" : "text-muted")">Experts</span></div>
+                    <div class="col"><span class="@(Model.RafCase.Status >= raf_pnp.Models.CaseStatus.ComplianceLodgement ? "text-success fw-bold" : "text-muted")">Compliance</span></div>
+                    <div class="col"><span class="@(Model.RafCase.Status >= raf_pnp.Models.CaseStatus.SummonsIssued ? "text-success fw-bold" : "text-muted")">Litigation</span></div>
+                    <div class="col"><span class="@(Model.RafCase.Status >= raf_pnp.Models.CaseStatus.Finalised ? "text-success fw-bold" : "text-muted")">Complete</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Case Details -->
+    <div class="col-lg-8">
+        <!-- Key Information -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="bi bi-info-circle me-2"></i>Case Information
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th class="text-muted" style="width: 40%;">Case Number:</th>
+                                <td><strong>@Model.RafCase.CaseNumber</strong></td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Client:</th>
+                                <td>
+                                    <a asp-page="/Clients/Details" asp-route-id="@Model.RafCase.ClientId">
+                                        @Model.RafCase.Client?.FullName
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Accident Date:</th>
+                                <td>@Model.RafCase.AccidentDate.ToString("dd MMMM yyyy")</td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Days Since Accident:</th>
+                                <td><span class="badge bg-info">@Model.RafCase.DaysSinceAccident days</span></td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Location:</th>
+                                <td>@(Model.RafCase.AccidentLocation ?? "Not specified")</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th class="text-muted" style="width: 45%;">Assigned Attorney:</th>
+                                <td>@(Model.RafCase.AssignedAttorney ?? "Unassigned")</td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Candidate Attorney:</th>
+                                <td>@(Model.RafCase.CandidateAttorney ?? "None")</td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Fee Agreement:</th>
+                                <td>
+                                    @if (Model.RafCase.FeeAgreementSigned)
+                                    {
+                                        <span class="badge bg-success"><i class="bi bi-check"></i> Signed</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning text-dark">Pending</span>
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Contingency Fee:</th>
+                                <td>
+                                    @if (Model.RafCase.ContingencyFeeAgreement)
+                                    {
+                                        <span class="badge bg-success"><i class="bi bi-check"></i> Yes</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">No</span>
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Estimated Value:</th>
+                                <td>@(Model.RafCase.EstimatedClaimValue?.ToString("C") ?? "Not set")</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                @if (!string.IsNullOrEmpty(Model.RafCase.AccidentDescription))
+                {
+                    <div class="mt-3">
+                        <h6>Accident Description:</h6>
+                        <p class="mb-0">@Model.RafCase.AccidentDescription</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Key Dates -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="bi bi-calendar-event me-2"></i>Key Dates & Deadlines
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="border rounded p-3 text-center">
+                            <i class="bi bi-calendar-check display-6 text-primary"></i>
+                            <h6 class="mt-2 mb-1">MMI Date</h6>
+                            <p class="mb-0 fw-bold">@(Model.RafCase.MmiDate?.ToString("dd MMM yyyy") ?? "Not set")</p>
+                            @if (Model.RafCase.DaysUntilMmi.HasValue)
+                            {
+                                <small class="text-muted">@(Model.RafCase.DaysUntilMmi > 0 ? $"In {Model.RafCase.DaysUntilMmi} days" : "Passed")</small>
+                            }
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="border rounded p-3 text-center">
+                            <i class="bi bi-envelope-check display-6 text-success"></i>
+                            <h6 class="mt-2 mb-1">Compliance Lodge</h6>
+                            <p class="mb-0 fw-bold">@(Model.RafCase.ComplianceLodgementDate?.ToString("dd MMM yyyy") ?? "Not set")</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="border rounded p-3 text-center">
+                            <i class="bi bi-hourglass-split display-6 text-danger"></i>
+                            <h6 class="mt-2 mb-1">120-Day Expiry</h6>
+                            <p class="mb-0 fw-bold">@(Model.RafCase.StatutoryExpiryDate?.ToString("dd MMM yyyy") ?? "Not set")</p>
+                            @if (Model.RafCase.DaysUntilStatutoryExpiry.HasValue)
+                            {
+                                <small class="@(Model.RafCase.DaysUntilStatutoryExpiry < 30 ? "text-danger" : "text-muted")">
+                                    @(Model.RafCase.DaysUntilStatutoryExpiry > 0 ? $"In {Model.RafCase.DaysUntilStatutoryExpiry} days" : "Expired")
+                                </small>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity History -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between">
+                <span><i class="bi bi-clock-history me-2"></i>Activity History</span>
+                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addActivityModal">
+                    <i class="bi bi-plus"></i> Add Note
+                </button>
+            </div>
+            <div class="card-body">
+                @if (Model.RafCase.Activities != null && Model.RafCase.Activities.Any())
+                {
+                    <div class="timeline">
+                        @foreach (var activity in Model.RafCase.Activities.OrderByDescending(a => a.ActivityDate).Take(10))
+                        {
+                            <div class="timeline-item completed">
+                                <div class="d-flex justify-content-between">
+                                    <strong>@activity.Title</strong>
+                                    <small class="text-muted">@activity.ActivityDate.ToString("dd MMM yyyy HH:mm")</small>
+                                </div>
+                                <p class="mb-0 text-muted small">@activity.Description</p>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted text-center">No activities recorded yet.</p>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Quick Actions -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="bi bi-lightning me-2"></i>Quick Actions
+            </div>
+            <div class="card-body d-grid gap-2">
+                <form method="post" asp-page-handler="UpdateStatus">
+                    <input type="hidden" name="id" value="@Model.RafCase.Id" />
+                    <div class="mb-2">
+                        <select name="newStatus" class="form-select">
+                            @foreach (var status in Enum.GetValues<raf_pnp.Models.CaseStatus>())
+                            {
+                                <option value="@status" selected="@(Model.RafCase.Status == status)">@GetStatusDisplayName(status)</option>
+                            }
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-arrow-right-circle me-1"></i> Update Status
+                    </button>
+                </form>
+                <hr />
+                <a asp-page="Edit" asp-route-id="@Model.RafCase.Id" class="btn btn-outline-primary">
+                    <i class="bi bi-pencil me-1"></i> Edit Case Details
+                </a>
+                <a href="#" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#addExpertModal">
+                    <i class="bi bi-person-plus me-1"></i> Add Expert
+                </a>
+            </div>
+        </div>
+
+        <!-- Documents -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="bi bi-file-earmark me-2"></i>Documents (@(Model.RafCase.Documents?.Count ?? 0))
+            </div>
+            <div class="card-body">
+                <!-- Success Message -->
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        @TempData["SuccessMessage"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+
+                <!-- Upload Form -->
+                <form method="post" asp-page-handler="UploadDocument" enctype="multipart/form-data" class="mb-4">
+                    <input type="hidden" name="id" value="@Model.RafCase.Id" />
+                    
+                    <div class="mb-3">
+                        <label for="uploadFile" class="form-label">Select File</label>
+                        <input type="file" class="form-control" id="uploadFile" name="UploadFile" required />
+                        <div class="form-text">Maximum file size: 10 MB</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="uploadDocumentType" class="form-label">Document Type</label>
+                        <select class="form-select" id="uploadDocumentType" name="UploadDocumentType" required>
+                            <option value="">-- Select Type --</option>
+                            @foreach (var docType in Enum.GetValues<raf_pnp.Models.DocumentType>())
+                            {
+                                <option value="@docType">@docType.ToString().Replace("Raf", "RAF ")</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="uploadDescription" class="form-label">Description (Optional)</label>
+                        <input type="text" class="form-control" id="uploadDescription" name="UploadDescription" placeholder="Brief description..." />
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-cloud-upload me-1"></i> Upload Document
+                    </button>
+                </form>
+
+                <hr />
+
+                <!-- Document List -->
+                @if (Model.RafCase.Documents != null && Model.RafCase.Documents.Any())
+                {
+                    <div class="list-group">
+                        @foreach (var doc in Model.RafCase.Documents.OrderByDescending(d => d.DateUploaded))
+                        {
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">
+                                            <i class="bi bi-file-earmark-text me-1"></i>
+                                            @doc.DocumentName
+                                        </h6>
+                                        <p class="mb-1 small">
+                                            <span class="badge bg-secondary">@doc.DocumentType.ToString().Replace("Raf", "RAF ")</span>
+                                        </p>
+                                        @if (!string.IsNullOrEmpty(doc.Description))
+                                        {
+                                            <p class="mb-1 text-muted small">@doc.Description</p>
+                                        }
+                                        <small class="text-muted">
+                                            Uploaded: @doc.DateUploaded.ToString("dd MMM yyyy HH:mm")
+                                            @if (!string.IsNullOrEmpty(doc.UploadedBy))
+                                            {
+                                                <span> by @doc.UploadedBy</span>
+                                            }
+                                        </small>
+                                    </div>
+                                    <div>
+                                        @if (!string.IsNullOrEmpty(doc.FilePath))
+                                        {
+                                            <a href="@doc.FilePath" target="_blank" class="btn btn-sm btn-outline-primary" download>
+                                                <i class="bi bi-download"></i>
+                                            </a>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted text-center mb-0">No documents uploaded yet.</p>
+                }
+            </div>
+        </div>
+
+        <!-- Experts -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="bi bi-hospital me-2"></i>Expert Appointments (@(Model.RafCase.ExpertAppointments?.Count ?? 0))
+            </div>
+            <div class="card-body">
+                @if (Model.RafCase.ExpertAppointments != null && Model.RafCase.ExpertAppointments.Any())
+                {
+                    <ul class="list-unstyled mb-0">
+                        @foreach (var expert in Model.RafCase.ExpertAppointments)
+                        {
+                            <li class="mb-2">
+                                <div class="d-flex justify-content-between">
+                                    <strong>@expert.ExpertName</strong>
+                                    <span class="badge @(expert.Status == raf_pnp.Models.AppointmentStatus.Completed ? "bg-success" : "bg-warning text-dark")">
+                                        @expert.Status
+                                    </span>
+                                </div>
+                                <small class="text-muted">@expert.ExpertType</small>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p class="text-muted text-center mb-0">No expert appointments.</p>
+                }
+            </div>
+        </div>
+
+        <!-- Notes -->
+        @if (!string.IsNullOrEmpty(Model.RafCase.Notes))
+        {
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-sticky me-2"></i>Notes
+                </div>
+                <div class="card-body">
+                    <p class="mb-0">@Model.RafCase.Notes</p>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@functions {
+    string GetStatusBadgeClass(raf_pnp.Models.CaseStatus status)
+    {
+        return status switch
+        {
+            raf_pnp.Models.CaseStatus.ClientIntake => "badge-intake",
+            raf_pnp.Models.CaseStatus.InitialLodgement => "badge-lodgement",
+            raf_pnp.Models.CaseStatus.MmiWaitingPeriod => "badge-mmi",
+            raf_pnp.Models.CaseStatus.ExpertAppointments => "badge-expert",
+            raf_pnp.Models.CaseStatus.ComplianceLodgement => "badge-compliance",
+            raf_pnp.Models.CaseStatus.StatutoryWaitingPeriod => "badge-waiting",
+            raf_pnp.Models.CaseStatus.SummonsIssued => "badge-summons",
+            raf_pnp.Models.CaseStatus.PajaApplication => "badge-paja",
+            raf_pnp.Models.CaseStatus.PleadingPhase => "badge-pleading",
+            raf_pnp.Models.CaseStatus.PreTrialPhase => "badge-pretrial",
+            raf_pnp.Models.CaseStatus.TrialPhase => "badge-trial",
+            raf_pnp.Models.CaseStatus.Finalised => "badge-finalised",
+            raf_pnp.Models.CaseStatus.Closed => "badge-closed",
+            _ => "bg-secondary"
+        };
+    }
+
+    string GetStatusDisplayName(raf_pnp.Models.CaseStatus status)
+    {
+        return status switch
+        {
+            raf_pnp.Models.CaseStatus.ClientIntake => "Client Intake",
+            raf_pnp.Models.CaseStatus.InitialLodgement => "Initial Lodgement",
+            raf_pnp.Models.CaseStatus.MmiWaitingPeriod => "MMI Waiting",
+            raf_pnp.Models.CaseStatus.ExpertAppointments => "Expert Appointments",
+            raf_pnp.Models.CaseStatus.ComplianceLodgement => "Compliance Lodgement",
+            raf_pnp.Models.CaseStatus.StatutoryWaitingPeriod => "120-Day Wait",
+            raf_pnp.Models.CaseStatus.SummonsIssued => "Summons Issued",
+            raf_pnp.Models.CaseStatus.PajaApplication => "PAJA Application",
+            raf_pnp.Models.CaseStatus.PleadingPhase => "Pleading Phase",
+            raf_pnp.Models.CaseStatus.PreTrialPhase => "Pre-Trial",
+            raf_pnp.Models.CaseStatus.TrialPhase => "Trial",
+            raf_pnp.Models.CaseStatus.Finalised => "Finalised",
+            raf_pnp.Models.CaseStatus.Closed => "Closed",
+            _ => status.ToString()
+        };
+    }
+
+    int GetProgressPercentage(raf_pnp.Models.CaseStatus status)
+    {
+        return status switch
+        {
+            raf_pnp.Models.CaseStatus.ClientIntake => 8,
+            raf_pnp.Models.CaseStatus.InitialLodgement => 16,
+            raf_pnp.Models.CaseStatus.MmiWaitingPeriod => 24,
+            raf_pnp.Models.CaseStatus.ExpertAppointments => 40,
+            raf_pnp.Models.CaseStatus.ComplianceLodgement => 50,
+            raf_pnp.Models.CaseStatus.StatutoryWaitingPeriod => 60,
+            raf_pnp.Models.CaseStatus.SummonsIssued => 70,
+            raf_pnp.Models.CaseStatus.PajaApplication => 75,
+            raf_pnp.Models.CaseStatus.PleadingPhase => 80,
+            raf_pnp.Models.CaseStatus.PreTrialPhase => 90,
+            raf_pnp.Models.CaseStatus.TrialPhase => 95,
+            raf_pnp.Models.CaseStatus.Finalised => 100,
+            raf_pnp.Models.CaseStatus.Closed => 100,
+            _ => 0
+        };
+    }
+}

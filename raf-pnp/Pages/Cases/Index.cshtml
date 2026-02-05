@@ -1,0 +1,167 @@
+@page
+@model raf_pnp.Pages.Cases.IndexModel
+@{
+    ViewData["Title"] = "Cases";
+}
+
+<div class="page-header">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <h1><i class="bi bi-folder-fill me-2"></i>RAF Cases</h1>
+            <p class="mb-0 opacity-75">Manage all Road Accident Fund cases</p>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+            <a asp-page="Create" class="btn btn-light btn-lg">
+                <i class="bi bi-plus-circle me-1"></i> New Case
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Search and Filter -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label">Search</label>
+                    <input type="text" name="searchTerm" value="@Model.SearchTerm" class="form-control" placeholder="Case number, client name..." />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Status</label>
+                    <select name="statusFilter" class="form-select">
+                        <option value="">All Statuses</option>
+                        @foreach (var status in Enum.GetValues<raf_pnp.Models.CaseStatus>())
+                        {
+                            <option value="@status" selected="@(Model.StatusFilter == status)">@GetStatusDisplayName(status)</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Sort By</label>
+                    <select name="sortBy" class="form-select">
+                        <option value="newest" selected="@(Model.SortBy == "newest")">Newest First</option>
+                        <option value="oldest" selected="@(Model.SortBy == "oldest")">Oldest First</option>
+                        <option value="casenumber" selected="@(Model.SortBy == "casenumber")">Case Number</option>
+                        <option value="client" selected="@(Model.SortBy == "client")">Client Name</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search me-1"></i> Search
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Cases Table -->
+<div class="card">
+    <div class="card-body p-0">
+        @if (Model.Cases != null && Model.Cases.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Case Number</th>
+                            <th>Client</th>
+                            <th>Accident Date</th>
+                            <th>Status</th>
+                            <th>Days Open</th>
+                            <th>Assigned Attorney</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var rafCase in Model.Cases)
+                        {
+                            <tr>
+                                <td>
+                                    <strong>
+                                        <a asp-page="Details" asp-route-id="@rafCase.Id">@rafCase.CaseNumber</a>
+                                    </strong>
+                                </td>
+                                <td>@rafCase.Client?.FullName</td>
+                                <td>@rafCase.AccidentDate.ToString("dd MMM yyyy")</td>
+                                <td>
+                                    <span class="badge badge-status @GetStatusBadgeClass(rafCase.Status)">
+                                        @GetStatusDisplayName(rafCase.Status)
+                                    </span>
+                                </td>
+                                <td>@rafCase.DaysSinceAccident days</td>
+                                <td>@(rafCase.AssignedAttorney ?? "Unassigned")</td>
+                                <td class="text-center">
+                                    <div class="btn-group btn-group-sm">
+                                        <a asp-page="Details" asp-route-id="@rafCase.Id" class="btn btn-outline-primary" title="View Details">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a asp-page="Edit" asp-route-id="@rafCase.Id" class="btn btn-outline-secondary" title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="bi bi-folder-x display-1 text-muted"></i>
+                <h4 class="mt-3 text-muted">No cases found</h4>
+                <p class="text-muted">Start by creating a new case</p>
+                <a asp-page="Create" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-1"></i> Create New Case
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+@functions {
+    string GetStatusBadgeClass(raf_pnp.Models.CaseStatus status)
+    {
+        return status switch
+        {
+            raf_pnp.Models.CaseStatus.ClientIntake => "badge-intake",
+            raf_pnp.Models.CaseStatus.InitialLodgement => "badge-lodgement",
+            raf_pnp.Models.CaseStatus.MmiWaitingPeriod => "badge-mmi",
+            raf_pnp.Models.CaseStatus.ExpertAppointments => "badge-expert",
+            raf_pnp.Models.CaseStatus.ComplianceLodgement => "badge-compliance",
+            raf_pnp.Models.CaseStatus.StatutoryWaitingPeriod => "badge-waiting",
+            raf_pnp.Models.CaseStatus.SummonsIssued => "badge-summons",
+            raf_pnp.Models.CaseStatus.PajaApplication => "badge-paja",
+            raf_pnp.Models.CaseStatus.PleadingPhase => "badge-pleading",
+            raf_pnp.Models.CaseStatus.PreTrialPhase => "badge-pretrial",
+            raf_pnp.Models.CaseStatus.TrialPhase => "badge-trial",
+            raf_pnp.Models.CaseStatus.Finalised => "badge-finalised",
+            raf_pnp.Models.CaseStatus.Closed => "badge-closed",
+            _ => "bg-secondary"
+        };
+    }
+
+    string GetStatusDisplayName(raf_pnp.Models.CaseStatus status)
+    {
+        return status switch
+        {
+            raf_pnp.Models.CaseStatus.ClientIntake => "Client Intake",
+            raf_pnp.Models.CaseStatus.InitialLodgement => "Initial Lodgement",
+            raf_pnp.Models.CaseStatus.MmiWaitingPeriod => "MMI Waiting",
+            raf_pnp.Models.CaseStatus.ExpertAppointments => "Expert Appointments",
+            raf_pnp.Models.CaseStatus.ComplianceLodgement => "Compliance Lodgement",
+            raf_pnp.Models.CaseStatus.StatutoryWaitingPeriod => "120-Day Wait",
+            raf_pnp.Models.CaseStatus.SummonsIssued => "Summons Issued",
+            raf_pnp.Models.CaseStatus.PajaApplication => "PAJA Application",
+            raf_pnp.Models.CaseStatus.PleadingPhase => "Pleading Phase",
+            raf_pnp.Models.CaseStatus.PreTrialPhase => "Pre-Trial",
+            raf_pnp.Models.CaseStatus.TrialPhase => "Trial",
+            raf_pnp.Models.CaseStatus.Finalised => "Finalised",
+            raf_pnp.Models.CaseStatus.Closed => "Closed",
+            _ => status.ToString()
+        };
+    }
+}
